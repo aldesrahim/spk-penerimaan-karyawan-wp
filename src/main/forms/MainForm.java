@@ -1,7 +1,19 @@
 package main.forms;
 
-import javax.swing.JFrame;
+import com.formdev.flatlaf.FlatClientProperties;
+
+import javax.swing.*;
+
+import main.Application;
+import main.menu.MenuItem;
+import main.menu.MenuMap;
 import main.models.User;
+import main.util.Dialog;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -9,6 +21,18 @@ import main.models.User;
 public class MainForm extends JFrame {
     
     private User currentUser;
+    private MenuMap currentMenu;
+
+    /**
+     * Creates new form MainForm
+     */
+    public MainForm() {
+        initComponents();
+        initMenuButtonsAction();
+        
+        menuPanel.putClientProperty(FlatClientProperties.STYLE, ""
+                + "background:$Menu.background;");
+    }
 
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
@@ -20,15 +44,58 @@ public class MainForm extends JFrame {
         this.currentUser = null;
     }
 
-    /**
-     * Creates new form MainForm
-     */
-    public MainForm() {
-        initComponents();
+    public void initMenuButtonsAction() {
+        MenuItem[] menuItems = new MenuItem[]{
+                new MenuItem(btnMenuDashboard, MenuMap.DASHBOARD),
+                new MenuItem(btnMenuBobot, MenuMap.MASTER_BOBOT),
+                new MenuItem(btnMenuKriteria, MenuMap.MASTER_KRITERIA),
+                new MenuItem(btnMenuNormalisasi, MenuMap.MASTER_NORMALISASI),
+                new MenuItem(btnMenuSubKriteria, MenuMap.MASTER_SUBKRITERIA),
+                new MenuItem(btnMenuLowongan, MenuMap.MASTER_LOWONGAN),
+                new MenuItem(btnMenuPelamar, MenuMap.MASTER_PELAMAR),
+                new MenuItem(btnMenuPenilaian, MenuMap.PP_PENILAIAN),
+                new MenuItem(btnMenuPerhitungan, MenuMap.PP_PERHITUNGAN),
+                new MenuItem(btnMenuLaporan, MenuMap.LAP_LAPORAN),
+        };
+
+        for (int i = 0; i < menuItems.length; i++) {
+            MenuItem item = menuItems[i];
+
+            if (i == 0) {
+                this.showPanel(menuItems, item);
+            }
+
+            item.getButton().addActionListener(e -> {
+                this.showPanel(menuItems, item);
+            });
+        }
     }
-    
-    public void initMenus() {
-        
+
+    public void showPanel(MenuItem[] menuItems, MenuItem item) {
+        if (item.getMap().equals(this.currentMenu)) {
+            return;
+        }
+
+        this.currentMenu = item.getMap();
+
+        contentPanel.setViewportView(this.currentMenu.getPanel());
+
+        for (MenuItem _item : menuItems) {
+            _item.getButton().setSelected(
+                    _item.getMap().equals(this.currentMenu)
+            );
+        }
+    }
+
+    public void attemptLogout() {
+        Dialog dialog = new Dialog();
+        dialog.setMessage("Apakah Anda yakin ingin keluar?");
+        dialog.setMessageType(JOptionPane.QUESTION_MESSAGE);
+        dialog.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+
+        if (dialog.show(this).equals(0)) {
+            Application.authLogout();
+        }
     }
 
     /**
@@ -41,49 +108,134 @@ public class MainForm extends JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
+        headPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         lbName = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        menuScroll = new javax.swing.JScrollPane();
         menuPanel = new javax.swing.JPanel();
+        btnMenuDashboard = new main.components.Button();
+        jLabel3 = new javax.swing.JLabel();
+        btnMenuBobot = new main.components.Button();
+        btnMenuKriteria = new main.components.Button();
+        btnMenuNormalisasi = new main.components.Button();
+        btnMenuSubKriteria = new main.components.Button();
+        btnMenuLowongan = new main.components.Button();
+        btnMenuPelamar = new main.components.Button();
+        jLabel4 = new javax.swing.JLabel();
+        btnMenuPenilaian = new main.components.Button();
+        btnMenuPerhitungan = new main.components.Button();
+        jLabel5 = new javax.swing.JLabel();
+        btnMenuLaporan = new main.components.Button();
+        jSeparator1 = new javax.swing.JSeparator();
+        btnMenuLogout = new main.components.Button();
         jPanel2 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         contentPanel = new javax.swing.JScrollPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(1100, 700));
         setPreferredSize(new java.awt.Dimension(1100, 700));
 
         jPanel1.setPreferredSize(new java.awt.Dimension(220, 700));
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 9));
+        headPanel.setBackground(new java.awt.Color(255, 255, 255));
+        headPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 3, 3));
+        headPanel.setPreferredSize(new java.awt.Dimension(113, 55));
         org.jdesktop.swingx.VerticalLayout verticalLayout1 = new org.jdesktop.swingx.VerticalLayout();
-        verticalLayout1.setGap(3);
-        jPanel3.setLayout(verticalLayout1);
+        verticalLayout1.setGap(2);
+        headPanel.setLayout(verticalLayout1);
 
         jLabel1.setFont(new java.awt.Font("Fira Sans", 1, 13)); // NOI18N
         jLabel1.setText("Selamat Datang, ");
-        jPanel3.add(jLabel1);
+        headPanel.add(jLabel1);
 
-        lbName.setFont(new java.awt.Font("Fira Sans", 0, 14)); // NOI18N
+        lbName.setFont(new java.awt.Font("Fira Sans", 0, 16)); // NOI18N
         lbName.setText("Nama User");
-        jPanel3.add(lbName);
+        headPanel.add(lbName);
 
-        jPanel1.add(jPanel3, java.awt.BorderLayout.PAGE_START);
+        jPanel1.add(headPanel, java.awt.BorderLayout.PAGE_START);
 
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(200, 100));
+        menuScroll.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        menuScroll.setPreferredSize(new java.awt.Dimension(200, 100));
 
-        menuPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        menuPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(15, 10, 10, 10));
         org.jdesktop.swingx.VerticalLayout verticalLayout2 = new org.jdesktop.swingx.VerticalLayout();
-        verticalLayout2.setGap(5);
+        verticalLayout2.setGap(10);
         menuPanel.setLayout(verticalLayout2);
-        jScrollPane1.setViewportView(menuPanel);
 
-        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        btnMenuDashboard.setText("Dashboard");
+        menuPanel.add(btnMenuDashboard);
+
+        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel3.setFont(new java.awt.Font("Fira Sans", 1, 12)); // NOI18N
+        jLabel3.setText("Master");
+        menuPanel.add(jLabel3);
+
+        btnMenuBobot.setText("Bobot");
+        menuPanel.add(btnMenuBobot);
+
+        btnMenuKriteria.setText("Kriteria");
+        menuPanel.add(btnMenuKriteria);
+
+        btnMenuNormalisasi.setText("Normalisasi");
+        menuPanel.add(btnMenuNormalisasi);
+
+        btnMenuSubKriteria.setText("Sub-Kriteria");
+        menuPanel.add(btnMenuSubKriteria);
+
+        btnMenuLowongan.setText("Lowongan Pekerjaan");
+        menuPanel.add(btnMenuLowongan);
+
+        btnMenuPelamar.setText("Pelamar");
+        menuPanel.add(btnMenuPelamar);
+
+        jLabel4.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel4.setFont(new java.awt.Font("Fira Sans", 1, 12)); // NOI18N
+        jLabel4.setText("Penilaian & Perhitungan");
+        menuPanel.add(jLabel4);
+
+        btnMenuPenilaian.setText("Penilaian");
+        menuPanel.add(btnMenuPenilaian);
+
+        btnMenuPerhitungan.setText("Perhitungan");
+        menuPanel.add(btnMenuPerhitungan);
+
+        jLabel5.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel5.setFont(new java.awt.Font("Fira Sans", 1, 12)); // NOI18N
+        jLabel5.setText("Laporan");
+        menuPanel.add(jLabel5);
+
+        btnMenuLaporan.setText("Laporan");
+        menuPanel.add(btnMenuLaporan);
+        menuPanel.add(jSeparator1);
+
+        btnMenuLogout.setText("Keluar");
+        btnMenuLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMenuLogoutActionPerformed(evt);
+            }
+        });
+        menuPanel.add(btnMenuLogout);
+
+        menuScroll.setViewportView(menuPanel);
+
+        jPanel1.add(menuScroll, java.awt.BorderLayout.CENTER);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.LINE_START);
 
         jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setPreferredSize(new java.awt.Dimension(100, 55));
+        jPanel4.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
+
+        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/img/PT NWS.png"))); // NOI18N
+        jPanel4.add(jLabel2);
+
+        jPanel2.add(jPanel4, java.awt.BorderLayout.PAGE_START);
 
         contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jPanel2.add(contentPanel, java.awt.BorderLayout.CENTER);
@@ -93,14 +245,36 @@ public class MainForm extends JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnMenuLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuLogoutActionPerformed
+        attemptLogout();
+    }//GEN-LAST:event_btnMenuLogoutActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private main.components.Button btnMenuBobot;
+    private main.components.Button btnMenuDashboard;
+    private main.components.Button btnMenuKriteria;
+    private main.components.Button btnMenuLaporan;
+    private main.components.Button btnMenuLogout;
+    private main.components.Button btnMenuLowongan;
+    private main.components.Button btnMenuNormalisasi;
+    private main.components.Button btnMenuPelamar;
+    private main.components.Button btnMenuPenilaian;
+    private main.components.Button btnMenuPerhitungan;
+    private main.components.Button btnMenuSubKriteria;
     private javax.swing.JScrollPane contentPanel;
+    private javax.swing.JPanel headPanel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lbName;
     private javax.swing.JPanel menuPanel;
+    private javax.swing.JScrollPane menuScroll;
     // End of variables declaration//GEN-END:variables
 }

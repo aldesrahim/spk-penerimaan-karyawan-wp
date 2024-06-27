@@ -1,5 +1,6 @@
 package main.forms;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import javax.swing.JFrame;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
@@ -76,7 +77,7 @@ public class LoginForm extends JFrame {
     private void initComponents() {
 
         jPanel3 = new javax.swing.JPanel();
-        jPanel1 = new javax.swing.JPanel();
+        formPanel = new javax.swing.JPanel();
         gUsername = new main.components.TextInputGroup();
         gPassword = new main.components.PasswordInputGroup();
         jLabel4 = new javax.swing.JLabel();
@@ -94,8 +95,8 @@ public class LoginForm extends JFrame {
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 102)));
-        jPanel1.setPreferredSize(new java.awt.Dimension(300, 250));
+        formPanel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 204, 102)));
+        formPanel.setPreferredSize(new java.awt.Dimension(300, 250));
 
         jLabel4.setFont(new java.awt.Font("Fira Sans", 1, 24)); // NOI18N
         jLabel4.setText("Selamat Datang");
@@ -116,30 +117,30 @@ public class LoginForm extends JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout formPanelLayout = new javax.swing.GroupLayout(formPanel);
+        formPanel.setLayout(formPanelLayout);
+        formPanelLayout.setHorizontalGroup(
+            formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formPanelLayout.createSequentialGroup()
                 .addGap(23, 23, 23)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(gPassword, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(gUsername, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(20, 20, 20))
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(formPanelLayout.createSequentialGroup()
                 .addGap(73, 73, 73)
                 .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 73, Short.MAX_VALUE))
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(formPanelLayout.createSequentialGroup()
                 .addGap(90, 90, 90)
                 .addComponent(jLabel4)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        formPanelLayout.setVerticalGroup(
+            formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formPanelLayout.createSequentialGroup()
                 .addGap(30, 30, 30)
                 .addComponent(jLabel4)
                 .addGap(25, 25, 25)
@@ -147,13 +148,13 @@ public class LoginForm extends JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(gPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLogin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(33, 33, 33))
         );
 
-        jPanel3.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 140, 360, 320));
+        jPanel3.add(formPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 140, 360, 320));
 
         background.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/img/login.jpeg"))); // NOI18N
         jPanel3.add(background, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 960, 500));
@@ -172,17 +173,24 @@ public class LoginForm extends JFrame {
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        System.exit(0);
+        Dialog dialog = new Dialog();
+        dialog.setMessage("Apakah Anda yakin ingin keluar aplikasi?");
+        dialog.setMessageType(JOptionPane.QUESTION_MESSAGE);
+        dialog.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+        
+        if (dialog.show(this).equals(0)) {
+            System.exit(0);
+        }
     }//GEN-LAST:event_btnCancelActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel background;
     private main.components.Button btnCancel;
     private main.components.Button btnLogin;
+    private javax.swing.JPanel formPanel;
     private main.components.PasswordInputGroup gPassword;
     private main.components.TextInputGroup gUsername;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel logo;
     // End of variables declaration//GEN-END:variables

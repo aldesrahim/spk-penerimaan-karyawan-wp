@@ -72,7 +72,8 @@ public class Application {
         Application.getDBConnection();
 
         EventQueue.invokeLater(() -> {
-            Application.loginForm.setVisible(true);
+            Application.mainForm.setVisible(true);
+            //Application.loginForm.setVisible(true);
         });
     }
 
