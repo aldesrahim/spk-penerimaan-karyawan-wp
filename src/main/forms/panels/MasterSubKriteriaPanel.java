@@ -343,7 +343,7 @@ public class MasterSubKriteriaPanel extends javax.swing.JPanel {
 
         if (Application.isCalculationExists()) {
             Dialog errorDialog = new Dialog();
-            errorDialog.setMessage("Sub0Kriteria tidak bisa ditambah/ubah, karena sudah ada perhitungan yang disimpan");
+            errorDialog.setMessage("Sub-Kriteria tidak bisa ditambah/ubah, karena sudah ada perhitungan yang disimpan");
             errorDialog.show(this);
 
             return;
