@@ -178,7 +178,7 @@ public class LoginForm extends JFrame {
         dialog.setMessageType(JOptionPane.QUESTION_MESSAGE);
         dialog.setOptionType(JOptionPane.OK_CANCEL_OPTION);
         
-        if (dialog.show(this).equals(0)) {
+        if (dialog.show(this).equals(JOptionPane.YES_OPTION)) {
             System.exit(0);
         }
     }//GEN-LAST:event_btnCancelActionPerformed

@@ -1,16 +1,147 @@
 package main.forms.panels;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import main.Application;
+import main.enums.CriteriaAttribute;
+import main.exceptions.DataNotFoundException;
+import main.models.Criteria;
+import main.models.SubCriteria;
+import main.models.Weight;
+import main.util.Dialog;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+
 /**
- *
  * @author aldes
  */
 public class MasterSubKriteriaPanel extends javax.swing.JPanel {
+
+    private Connection conn;
+    private DefaultTableModel tableModel;
 
     /**
      * Creates new form MasterSubKriteriaPanel
      */
     public MasterSubKriteriaPanel() {
+        this.conn = Application.getDBConnection();
+
         initComponents();
+
+        header.setTitleText("Data Sub-Kriteria");
+
+        formPanel.putClientProperty(FlatClientProperties.STYLE, ""
+                + "arc:10;"
+                + "background:darken(@background, 10%)");
+
+        gId.setTitleText("ID");
+        gId.getInputField().setEnabled(false);
+        gId.getInputField().putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Auto-generate oleh sistem");
+
+        gCriteria.setTitleText("Kriteria");
+        gWeight.setTitleText("Bobot");
+        gName.setTitleText("Nama");
+
+        btnDelete.setVisible(false);
+
+        initCbWeights();
+        initCbCriterias();
+        initDataTables();
+    }
+
+    public void initCbWeights() {
+        try {
+            String sql = "SELECT * FROM weights ORDER BY weight DESC";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            gWeight.getInputField().removeAllItems();
+
+            while (rs.next()) {
+                gWeight.getInputField().addItem(new Weight(
+                        rs.getInt("id"),
+                        rs.getInt("weight"),
+                        rs.getString("description")
+                ));
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error init combobox weight: " + e.getMessage());
+        }
+    }
+
+    public void initCbCriterias() {
+        try {
+            String sql = "SELECT criterias.* FROM criterias" +
+                    " JOIN weights ON weights.id = criterias.weight_id" +
+                    " ORDER BY weight DESC";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            gCriteria.getInputField().removeAllItems();
+
+            while (rs.next()) {
+                gCriteria.getInputField().addItem(new Criteria(
+                        rs.getInt("id"),
+                        rs.getInt("weight_id"),
+                        rs.getString("name"),
+                        rs.getInt("attribute")
+                ));
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error init combobox criterias: " + e.getMessage());
+        }
+    }
+
+    public void initDataTables() {
+        String[] headers = new String[]{"ID", "Kriteria", "Bobot", "Sub-Kriteria"};
+
+        tableModel = new DefaultTableModel(null, headers);
+        table.setModel(tableModel);
+
+        try {
+            String sql = "SELECT" +
+                    " sub_criterias.*," +
+                    " weights.description AS weight_description," +
+                    " weights.weight AS weight," +
+                    " criterias.name AS criteria_name" +
+                    " FROM sub_criterias" +
+                    " JOIN weights ON weights.id = sub_criterias.weight_id" +
+                    " JOIN criterias ON criterias.id = sub_criterias.criteria_id" +
+                    " ORDER BY criterias.id, sub_criterias.id";
+
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                tableModel.addRow(new String[]{
+                        String.valueOf(rs.getInt("id")),
+                        rs.getString("criteria_name"),
+                        rs.getString("weight_description"),
+                        rs.getString("name")
+                });
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error datatable: " + e.getMessage());
+        }
+    }
+
+    public void resetForm() {
+        gId.getInputField().setText("");
+        gWeight.getInputField().setSelectedIndex(0);
+        gCriteria.getInputField().setSelectedIndex(0);
+        gName.getInputField().setText("");
+
+        btnDelete.setVisible(false);
     }
 
     /**
@@ -22,19 +153,344 @@ public class MasterSubKriteriaPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        header = new main.components.Header();
+        formPanel = new javax.swing.JPanel();
+        gId = new main.components.NumberInputGroup();
+        gCriteria = new main.components.ComboBoxInputGroup();
+        gWeight = new main.components.ComboBoxInputGroup();
+        gName = new main.components.TextInputGroup();
+        btnSave = new main.components.Button();
+        btnCancel = new main.components.Button();
+        btnDelete = new main.components.Button();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        setPreferredSize(new java.awt.Dimension(870, 584));
+
+        formPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 7, 7, 7));
+        formPanel.setPreferredSize(new java.awt.Dimension(838, 128));
+
+        btnSave.setText("Simpan");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+
+        btnCancel.setText("Batal");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setText("Hapus");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout formPanelLayout = new javax.swing.GroupLayout(formPanel);
+        formPanel.setLayout(formPanelLayout);
+        formPanelLayout.setHorizontalGroup(
+                formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(formPanelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(formPanelLayout.createSequentialGroup()
+                                                .addComponent(gId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(gCriteria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(gWeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(gName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(formPanelLayout.createSequentialGroup()
+                                                .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        formPanelLayout.setVerticalGroup(
+                formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(formPanelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addComponent(gName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(gWeight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(gCriteria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(gId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][]{
+                        {null, null, null, null},
+                        {null, null, null, null},
+                        {null, null, null, null},
+                        {null, null, null, null}
+                },
+                new String[]{
+                        "Title 1", "Title 2", "Title 3", "Title 4"
+                }
+        ));
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(table);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jScrollPane1)
+                                        .addComponent(header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(formPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 844, Short.MAX_VALUE))
+                                .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(formPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    public SubCriteria getById(String id) throws Exception {
+        String sql = "SELECT * FROM sub_criterias WHERE id = ?";
+        PreparedStatement stmt = this.conn.prepareStatement(sql);
+        stmt.setInt(1, Integer.parseInt(id));
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            SubCriteria subCriteria = new SubCriteria();
+            subCriteria.setId(rs.getInt("id"));
+            subCriteria.setWeightId(rs.getInt("weight_id"));
+            subCriteria.setName(rs.getString("name"));
+            subCriteria.setCriteriaId(rs.getInt("criteria_id"));
+
+            rs.close();
+            stmt.close();
+
+            return subCriteria;
+        }
+
+        Dialog dialog = new Dialog();
+        dialog.setMessage("Data tidak ditemukan");
+        dialog.setMessageType(JOptionPane.ERROR_MESSAGE);
+        dialog.show(this);
+
+        rs.close();
+        stmt.close();
+
+        throw new DataNotFoundException("Data tidak ditemukan");
+    }
+
+    private boolean isDuplicate() throws SQLException {
+        String id = gId.getInputValue();
+        String name = gName.getInputValue();
+        Weight weight = (Weight) gWeight.getSelectedItem();
+        Criteria criteria = (Criteria) gCriteria.getSelectedItem();
+
+        /// validasi sub-kriteria tidak boleh duplikat pada kriteria yang sama
+        String sqlConditions = "name = ? AND criteria_id = ?";
+
+        String sql = "SELECT * FROM sub_criterias WHERE " + sqlConditions;
+        PreparedStatement stmt = this.conn.prepareStatement(sql);
+
+        if (!id.isEmpty()) {
+            sql = "SELECT * FROM sub_criterias WHERE (" + sqlConditions + ") AND id != ?";
+            stmt = this.conn.prepareStatement(sql);
+            stmt.setInt(3, Integer.parseInt(id));
+        }
+
+        stmt.setString(1, name);
+        stmt.setInt(2, criteria.getId());
+        ResultSet rs = stmt.executeQuery();
+
+        boolean status = rs.next();
+
+        stmt.close();
+        rs.close();
+
+        return status;
+    }
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        String id = gId.getInputValue();
+        String name = gName.getInputValue();
+        Weight weight = (Weight) gWeight.getSelectedItem();
+        Criteria criteria = (Criteria) gCriteria.getSelectedItem();
+
+        if (Application.isCalculationExists()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Sub0Kriteria tidak bisa ditambah/ubah, karena sudah ada perhitungan yang disimpan");
+            errorDialog.show(this);
+
+            return;
+        }
+
+        if (name.isEmpty()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Sub-Kriteria tidak boleh kosong");
+            errorDialog.show(this);
+
+            return;
+        }
+
+        try {
+            String sql = "INSERT INTO sub_criterias (criteria_id, weight_id, name) VALUES (?, ?, ?)";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+
+            if (this.isDuplicate()) {
+                Dialog errorDialog = new Dialog();
+                errorDialog.setMessage("Sub-Kriteria " + name + " sudah ada");
+                errorDialog.show(this);
+
+                stmt.close();
+
+                return;
+            }
+
+            if (!id.isEmpty()) {
+                sql = "UPDATE sub_criterias SET criteria_id = ?, weight_id = ?, name = ? WHERE id = ?";
+                stmt = this.conn.prepareStatement(sql);
+                stmt.setInt(4, Integer.parseInt(id));
+            }
+
+            stmt.setInt(1, criteria.getId());
+            stmt.setInt(2, weight.getId());
+            stmt.setString(3, name);
+            stmt.executeUpdate();
+
+            stmt.close();
+
+            Dialog dialog = new Dialog("Berhasil");
+            dialog.setMessage("Data berhasil disimpan");
+            dialog.show(this);
+
+            resetForm();
+            initDataTables();
+        } catch (Exception e) {
+            System.err.println("error when save: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        resetForm();
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        String id = gId.getInputValue();
+
+        if (id.isEmpty()) {
+            return;
+        }
+
+        if (Application.isCalculationExists()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Sub-Kriteria tidak bisa dihapus, karena sudah ada perhitungan yang disimpan");
+            errorDialog.show(this);
+
+            return;
+        }
+
+        Dialog confirm = new Dialog();
+        confirm.setMessage("Apakah Anda yakin ingin menghapus data?");
+        confirm.setMessageType(JOptionPane.QUESTION_MESSAGE);
+        confirm.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+
+        if (!confirm.show(this).equals(JOptionPane.YES_OPTION)) {
+            return;
+        }
+
+        try {
+            this.getById(id);
+
+            String sql = "DELETE FROM sub_criterias WHERE id = ?";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+            stmt.setInt(1, Integer.parseInt(id));
+            stmt.executeUpdate();
+
+            stmt.close();
+
+            Dialog dialog = new Dialog("Berhasil");
+            dialog.setMessage("Data berhasil dihapus");
+            dialog.show(this);
+
+            resetForm();
+            initDataTables();
+        } catch (Exception e) {
+            if (e instanceof SQLException) {
+                Dialog dialog = new Dialog();
+                dialog.setMessage("Data tidak dapat dihapus karena sudah terikat dengan data lain");
+                dialog.show(this);
+            }
+
+            System.err.println("error when delete: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
+        int row = table.getSelectedRow();
+        String tableId = tableModel.getValueAt(row, 0).toString();
+        String currentId = gId.getInputValue();
+
+        if (tableId.equalsIgnoreCase(currentId)) {
+            return;
+        }
+
+        try {
+            SubCriteria rs = this.getById(tableId);
+
+            gId.getInputField().setText(rs.getId().toString());
+            gName.getInputField().setText(rs.getName());
+
+            Weight weight = new Weight();
+            weight.setId(rs.getWeightId());
+            gWeight.getInputField().setSelectedItem(weight);
+
+            Criteria criteria = new Criteria();
+            criteria.setId(rs.getCriteriaId());
+            gCriteria.getInputField().setSelectedItem(criteria);
+
+            btnDelete.setVisible(true);
+        } catch (Exception e) {
+            System.err.println("error find by id: " + e.getMessage());
+        }
+    }//GEN-LAST:event_tableMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private main.components.Button btnCancel;
+    private main.components.Button btnDelete;
+    private main.components.Button btnSave;
+    private javax.swing.JPanel formPanel;
+    private main.components.ComboBoxInputGroup<Criteria> gCriteria;
+    private main.components.NumberInputGroup gId;
+    private main.components.TextInputGroup gName;
+    private main.components.ComboBoxInputGroup<Weight> gWeight;
+    private main.components.Header header;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }

@@ -4,22 +4,22 @@ package main.enums;
  *
  */
 public enum CriteriaAttribute {
-    BENEFIT,
-    COST;
+    Benefit,
+    Cost;
 
     public static CriteriaAttribute fromInt(int attribute) {
-        return attribute == 1 ? BENEFIT : COST;
+        return attribute == 1 ? Benefit : Cost;
     }
 
     public int toInt() {
-        return BENEFIT.equals(this) ? 1 : -1;
+        return Benefit.equals(this) ? 1 : -1;
     }
 
     @Override
     public String toString() {
         return switch (this) {
-            case BENEFIT -> "Benefit";
-            case COST -> "Cost";
+            case Benefit -> "Benefit";
+            case Cost -> "Cost";
         };
     }
 }

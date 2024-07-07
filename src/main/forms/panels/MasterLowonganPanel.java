@@ -1,16 +1,155 @@
 package main.forms.panels;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import main.Application;
+import main.exceptions.DataNotFoundException;
+import main.models.Vacancy;
+import main.util.Dialog;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
+
 /**
  *
  * @author aldes
  */
 public class MasterLowonganPanel extends javax.swing.JPanel {
 
+    private Connection conn;
+    private DefaultTableModel tableModel;
+
     /**
      * Creates new form MasterLowonganPanel
      */
     public MasterLowonganPanel() {
+        this.conn = Application.getDBConnection();
+
         initComponents();
+        
+        header.setTitleText("Data Lowongan");
+
+        formPanel.putClientProperty(FlatClientProperties.STYLE, ""
+                + "arc:10;"
+                + "background:darken(@background, 10%)");
+
+        btnDelete.setVisible(false);
+
+        gId.setTitleText("ID");
+        gId.getInputField().setEnabled(false);
+        gId.getInputField().putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Auto-generate oleh sistem");
+
+        gPosition.setTitleText("Posisi");
+        gQuota.setTitleText("Kuota");
+
+        initDataTables();
+    }
+
+    public void initDataTables() {
+        String[] headers = new String[]{"ID", "Posisi", "Kuota"};
+
+        tableModel = new DefaultTableModel(null, headers);
+        table.setModel(tableModel);
+
+        try {
+            String sql = "SELECT * FROM vacancies ORDER BY id";
+
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                tableModel.addRow(new String[]{
+                        String.valueOf(rs.getInt("id")),
+                        rs.getString("position"),
+                        rs.getString("quota")
+                });
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error datatable: " + e.getMessage());
+        }
+    }
+
+    public void resetForm() {
+        gId.getInputField().setText("");
+        gPosition.getInputField().setText("");
+        gQuota.getInputField().setText("");
+
+        btnDelete.setVisible(false);
+    }
+
+    public Vacancy getById(String id) throws Exception {
+        String sql = "SELECT * FROM vacancies WHERE id = ?";
+        PreparedStatement stmt = this.conn.prepareStatement(sql);
+        stmt.setInt(1, Integer.parseInt(id));
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            Vacancy vacancy = new Vacancy();
+            vacancy.setId(rs.getInt("id"));
+            vacancy.setPosition(rs.getString("position"));
+            vacancy.setQuota(rs.getInt("quota"));
+
+            rs.close();
+            stmt.close();
+
+            return vacancy;
+        }
+
+        Dialog dialog = new Dialog();
+        dialog.setMessage("Data tidak ditemukan");
+        dialog.setMessageType(JOptionPane.ERROR_MESSAGE);
+        dialog.show(this);
+
+        rs.close();
+        stmt.close();
+
+        throw new DataNotFoundException("Data tidak ditemukan");
+    }
+
+    private boolean isDuplicate() throws SQLException {
+        String id = gId.getInputValue();
+        String position = gPosition.getInputValue();
+
+        String sql = "SELECT * FROM vacancies WHERE position = ?";
+        PreparedStatement stmt = this.conn.prepareStatement(sql);
+
+        if (!id.isEmpty()) {
+            sql = "SELECT * FROM vacancies WHERE position = ? AND id != ?";
+            stmt = this.conn.prepareStatement(sql);
+            stmt.setInt(2, Integer.parseInt(id));
+        }
+
+        stmt.setString(1, position);
+        ResultSet rs = stmt.executeQuery();
+
+        boolean status =  rs.next();
+
+        stmt.close();
+        rs.close();
+
+        return status;
+    }
+
+    private int getAppliedCount(int id) {
+        int applied = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) AS applicant_count FROM applicants WHERE vacancy_id = ?";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                applied = rs.getInt("applicant_count");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return applied;
     }
 
     /**
@@ -22,19 +161,281 @@ public class MasterLowonganPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        header = new main.components.Header();
+        formPanel = new javax.swing.JPanel();
+        gId = new main.components.NumberInputGroup();
+        gPosition = new main.components.TextInputGroup();
+        gQuota = new main.components.NumberInputGroup();
+        btnSave = new main.components.Button();
+        btnCancel = new main.components.Button();
+        btnDelete = new main.components.Button();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+        formPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 7, 7, 7));
+
+        btnSave.setText("Simpan");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+
+        btnCancel.setText("Batal");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
+
+        btnDelete.setText("Hapus");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout formPanelLayout = new javax.swing.GroupLayout(formPanel);
+        formPanel.setLayout(formPanelLayout);
+        formPanelLayout.setHorizontalGroup(
+            formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(formPanelLayout.createSequentialGroup()
+                        .addComponent(gId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(gPosition, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(gQuota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(formPanelLayout.createSequentialGroup()
+                        .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(206, Short.MAX_VALUE))
+        );
+        formPanelLayout.setVerticalGroup(
+            formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(gQuota, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(gPosition, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(gId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(table);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addComponent(header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(formPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(formPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        String id = gId.getInputValue();
+        String position = gPosition.getInputValue();
+        String quota = gQuota.getInputValue();
+
+        if (position.isEmpty()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Posisi tidak boleh kosong");
+            errorDialog.show(this);
+
+            return;
+        }
+
+        if (quota.isEmpty()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Kuota tidak boleh kosong");
+            errorDialog.show(this);
+
+            return;
+        }
+
+        if (Integer.parseInt(quota) <= 0) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Kuota harus lebih dari 0");
+            errorDialog.show(this);
+
+            return;
+        }
+
+        if (!id.isEmpty()) {
+            int applied = getAppliedCount(Integer.parseInt(id));
+
+            if (Integer.parseInt(quota) < applied) {
+                Dialog errorDialog = new Dialog();
+                errorDialog.setMessage("Kuota tidak boleh kurang dari jumlah pelamar yang disimpan: " + applied);
+                errorDialog.show(this);
+
+                return;
+            }
+        }
+
+        try {
+            String sql = "INSERT INTO vacancies (position, quota) VALUES (?, ?)";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+
+            if (this.isDuplicate()) {
+                Dialog errorDialog = new Dialog();
+                errorDialog.setMessage("Posisi " + position + " sudah ada");
+                errorDialog.show(this);
+
+                stmt.close();
+
+                return;
+            }
+
+            if (!id.isEmpty()) {
+                sql = "UPDATE vacancies SET position = ?, quota = ? WHERE id = ?";
+                stmt = this.conn.prepareStatement(sql);
+                stmt.setInt(3, Integer.parseInt(id));
+            }
+
+            stmt.setString(1, position);
+            stmt.setInt(2, Integer.parseInt(quota));
+            stmt.executeUpdate();
+
+            stmt.close();
+
+            Dialog dialog = new Dialog("Berhasil");
+            dialog.setMessage("Data berhasil disimpan");
+            dialog.show(this);
+
+            resetForm();
+            initDataTables();
+        } catch (Exception e) {
+            System.err.println("error when save: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        resetForm();
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        String id = gId.getInputValue();
+
+        if (id.isEmpty()) {
+            return;
+        }
+
+        Dialog confirm = new Dialog();
+        confirm.setMessage("Apakah Anda yakin ingin menghapus data?");
+        confirm.setMessageType(JOptionPane.QUESTION_MESSAGE);
+        confirm.setOptionType(JOptionPane.OK_CANCEL_OPTION);
+
+        if (!confirm.show(this).equals(JOptionPane.YES_OPTION)) {
+            return;
+        }
+
+        try {
+            this.getById(id);
+
+            String sql = "DELETE FROM vacancies WHERE id = ?";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+            stmt.setInt(1, Integer.parseInt(id));
+            stmt.executeUpdate();
+
+            stmt.close();
+
+            Dialog dialog = new Dialog("Berhasil");
+            dialog.setMessage("Data berhasil dihapus");
+            dialog.show(this);
+
+            resetForm();
+            initDataTables();
+        } catch (Exception e) {
+            if (e instanceof SQLException) {
+                Dialog dialog = new Dialog();
+                dialog.setMessage("Data tidak dapat dihapus karena sudah terikat dengan data lain");
+                dialog.show(this);
+            }
+
+            System.err.println("error when delete: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
+        int row = table.getSelectedRow();
+        String tableId = tableModel.getValueAt(row, 0).toString();
+        String currentId = gId.getInputValue();
+
+        if (tableId.equalsIgnoreCase(currentId)) {
+            return;
+        }
+
+        try {
+            Vacancy rs = this.getById(tableId);
+
+            gId.getInputField().setText(rs.getId().toString());
+            gPosition.getInputField().setText(rs.getPosition());
+            gQuota.getInputField().setText(String.valueOf(rs.getQuota()));
+
+            btnDelete.setVisible(true);
+        } catch (Exception e) {
+            System.err.println("error find by id: " + e.getMessage());
+        }
+    }//GEN-LAST:event_tableMouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private main.components.Button btnCancel;
+    private main.components.Button btnDelete;
+    private main.components.Button btnSave;
+    private javax.swing.JPanel formPanel;
+    private main.components.NumberInputGroup gId;
+    private main.components.TextInputGroup gPosition;
+    private main.components.NumberInputGroup gQuota;
+    private main.components.Header header;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }

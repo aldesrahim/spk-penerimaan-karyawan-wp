@@ -1,16 +1,67 @@
 package main.forms.panels;
 
+import main.Application;
+import main.enums.CriteriaAttribute;
+
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 /**
  *
  * @author aldes
  */
 public class MasterNormalisasiPanel extends javax.swing.JPanel {
 
+    private Connection conn;
+    private DefaultTableModel tableModel;
+
     /**
      * Creates new form MasterNormalisasiPanel
      */
     public MasterNormalisasiPanel() {
+        this.conn = Application.getDBConnection();
+
         initComponents();
+        
+        header.setTitleText("Data Normalisasi");
+
+        initDataTables();
+    }
+
+    public void initDataTables() {
+        String[] headers = new String[]{"ID", "Bobot", "Kriteria", "Atribut", "Nomalisasi"};
+
+        tableModel = new DefaultTableModel(null, headers);
+        table.setModel(tableModel);
+
+        try {
+            String sql = "SELECT" +
+                    " criterias.*," +
+                    " weights.description AS weight_description," +
+                    " weights.weight AS weight" +
+                    " FROM criterias" +
+                    " JOIN weights ON weights.id = criterias.weight_id";
+
+            Statement stmt = this.conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                tableModel.addRow(new String[]{
+                        String.valueOf(rs.getInt("id")),
+                        rs.getString("weight_description"),
+                        rs.getString("name"),
+                        CriteriaAttribute.fromInt(rs.getInt("attribute")).toString(),
+                        rs.getString("normalization")
+                });
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error datatable: " + e.getMessage());
+        }
     }
 
     /**
@@ -22,19 +73,52 @@ public class MasterNormalisasiPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        header = new main.components.Header();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(table);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 838, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private main.components.Header header;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }

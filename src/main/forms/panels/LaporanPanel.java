@@ -1,16 +1,136 @@
 package main.forms.panels;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import main.Application;
+import main.enums.Gender;
+import main.enums.Religion;
+import main.models.Vacancy;
+import main.util.Dialog;
+
+import javax.swing.table.DefaultTableModel;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 /**
  *
  * @author aldes
  */
 public class LaporanPanel extends javax.swing.JPanel {
 
+    private Connection conn;
+    private DefaultTableModel tableModel;
+    private Vacancy currentVacancy;
+
     /**
      * Creates new form LaporanPanel
      */
     public LaporanPanel() {
+        this.conn = Application.getDBConnection();
+
         initComponents();
+        initCbVacancies();
+        initTableCalculation();
+
+        header.setTitleText("Laporan");
+        formPanel.putClientProperty(FlatClientProperties.STYLE, ""
+                + "arc:10;"
+                + "background:darken(@background, 10%)");
+
+        gVacancy.setTitleText("Lowongan");
+
+        btnPrint.setVisible(false);
+    }
+
+    private void initCbVacancies() {
+        try {
+            String sql = "SELECT * FROM vacancies";
+            PreparedStatement stmt = this.conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            gVacancy.getInputField().removeAllItems();
+
+            while (rs.next()) {
+                gVacancy.getInputField().addItem(new Vacancy(
+                        rs.getInt("id"),
+                        rs.getString("position"),
+                        rs.getInt("quota")
+                ));
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error init combobox vacanies: " + e.getMessage());
+        }
+    }
+
+    private void initTableCalculation() {
+        String[] headers = new String[]{"Lowongan", "Nama", "No.HP", "Agama", "Jenis Kelamin", "Alamat", "Tanggal Lahir", "Ranking"};
+
+        tableModel = new DefaultTableModel(null, headers);
+        table.setModel(tableModel);
+    }
+
+    public void fillTableCalculation() {
+        if (this.currentVacancy == null) {
+            return;
+        }
+
+        String sql = "SELECT" +
+                " applicants.name," +
+                " applicants.phone_number," +
+                " applicants.religion," +
+                " applicants.gender," +
+                " applicants.address," +
+                " applicants.dob," +
+                " vacancies.position" +
+                " FROM calculations" +
+                " JOIN evaluations ON evaluations.id = calculations.evaluation_id" +
+                " JOIN applicants ON applicants.id = evaluations.applicant_id" +
+                " JOIN vacancies ON vacancies.id = applicants.vacancy_id" +
+                " WHERE applicants.vacancy_id = ?" +
+                " ORDER BY calculations.v";
+
+        try {
+            Vacancy vacancy = this.currentVacancy;
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, vacancy.getId());
+            ResultSet rs = stmt.executeQuery();
+
+            tableModel.setRowCount(0);
+            int iteration = 0;
+
+            while (rs.next()) {
+                tableModel.addRow(new String[]{
+                        rs.getString("position"),
+                        rs.getString("name"),
+                        rs.getString("phone_number"),
+                        Religion.fromString(rs.getString("religion")).toString(),
+                        Gender.fromInt(rs.getInt("gender")).toString(),
+                        rs.getString("address"),
+                        rs.getDate("dob").toString(),
+                        String.valueOf(++iteration),
+                });
+            }
+
+            if (iteration == 0) {
+                btnPrint.setVisible(false);
+
+                Dialog errorDialog = new Dialog();
+                errorDialog.setMessage("Lowongan "+ vacancy.getPosition() +" belum dihitung");
+                errorDialog.show(this);
+            } else {
+                btnPrint.setVisible(true);
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.err.println("error while filling table calculation: " + e.getMessage());
+        }
     }
 
     /**
@@ -22,19 +142,116 @@ public class LaporanPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        header = new main.components.Header();
+        formPanel = new javax.swing.JPanel();
+        btnSearch = new main.components.Button();
+        btnPrint = new main.components.Button();
+        gVacancy = new main.components.ComboBoxInputGroup();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 10, 10, 10));
+
+        formPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(7, 7, 7, 7));
+
+        btnSearch.setText("Cari");
+        btnSearch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchActionPerformed(evt);
+            }
+        });
+
+        btnPrint.setText("Cetak");
+        btnPrint.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrintActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout formPanelLayout = new javax.swing.GroupLayout(formPanel);
+        formPanel.setLayout(formPanelLayout);
+        formPanelLayout.setHorizontalGroup(
+            formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(formPanelLayout.createSequentialGroup()
+                        .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(gVacancy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        formPanelLayout.setVerticalGroup(
+            formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(formPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(gVacancy, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addGroup(formPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPrint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        jScrollPane1.setViewportView(table);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(header, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(formPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 838, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(header, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(formPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
+        this.currentVacancy = (Vacancy) gVacancy.getSelectedItem();
+
+        fillTableCalculation();
+    }//GEN-LAST:event_btnSearchActionPerformed
+
+    private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
+        if (this.currentVacancy == null) {
+            return;
+        }
+    }//GEN-LAST:event_btnPrintActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private main.components.Button btnPrint;
+    private main.components.Button btnSearch;
+    private javax.swing.JPanel formPanel;
+    private main.components.ComboBoxInputGroup<Vacancy> gVacancy;
+    private main.components.Header header;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }

@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class Database {
     private static final String DB_HOST = "localhost";
     private static final String DB_PORT = "3306";
-    private static final String DB_NAME = "spk_dewi";
+    private static final String DB_NAME = "spk_dewi_ai";
     private static final String DB_USER = "root";
     private static final String DB_PASS = "root";
     

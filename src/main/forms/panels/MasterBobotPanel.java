@@ -240,7 +240,7 @@ public class MasterBobotPanel extends javax.swing.JPanel {
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
         int row = table.getSelectedRow();
         String tableId = tableModel.getValueAt(row, 0).toString();
-        String currentId = gId.getInputField().getText();
+        String currentId = gId.getInputValue();
 
         if (tableId.equalsIgnoreCase(currentId)) {
             return;
@@ -264,8 +264,8 @@ public class MasterBobotPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private boolean isDuplicate() throws SQLException {
-        String id = gId.getInputField().getText();
-        String weight = gWeight.getInputField().getText();
+        String id = gId.getInputValue();
+        String weight = gWeight.getInputValue();
 
         String sql = "SELECT * FROM weights WHERE weight = ?";
         PreparedStatement stmt = this.conn.prepareStatement(sql);
@@ -288,9 +288,17 @@ public class MasterBobotPanel extends javax.swing.JPanel {
     }
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
-        String id = gId.getInputField().getText();
-        String weight = gWeight.getInputField().getText();
-        String description = gDescription.getInputField().getText();
+        String id = gId.getInputValue();
+        String weight = gWeight.getInputValue();
+        String description = gDescription.getInputValue();
+
+        if (!id.isEmpty() && Application.isCalculationExists()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Bobot tidak bisa diubah, karena sudah ada perhitungan yang disimpan");
+            errorDialog.show(this);
+
+            return;
+        }
 
         if (weight.isEmpty()) {
             Dialog errorDialog = new Dialog();
@@ -314,7 +322,7 @@ public class MasterBobotPanel extends javax.swing.JPanel {
 
             if (this.isDuplicate()) {
                 Dialog errorDialog = new Dialog();
-                errorDialog.setMessage("Bobot sudah ada");
+                errorDialog.setMessage("Bobot " + weight + " sudah ada");
                 errorDialog.show(this);
 
                 stmt.close();
@@ -340,15 +348,28 @@ public class MasterBobotPanel extends javax.swing.JPanel {
 
             resetForm();
             initDataTables();
+
+            // Hitung ulang nilai normalisasi bobot, saat nilai bobot diubah
+            if (!id.isEmpty()) {
+                Application.recalculateNormalizations();
+            }
         } catch (Exception e) {
             System.err.println("error when save: " + e.getMessage());
         }
     }//GEN-LAST:event_btnSaveActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        String id = gId.getInputField().getText();
+        String id = gId.getInputValue();
 
         if (id.isEmpty()) {
+            return;
+        }
+
+        if (Application.isCalculationExists()) {
+            Dialog errorDialog = new Dialog();
+            errorDialog.setMessage("Bobot tidak bisa dihapus, karena sudah ada perhitungan yang disimpan");
+            errorDialog.show(this);
+
             return;
         }
 
@@ -357,7 +378,7 @@ public class MasterBobotPanel extends javax.swing.JPanel {
         confirm.setMessageType(JOptionPane.QUESTION_MESSAGE);
         confirm.setOptionType(JOptionPane.OK_CANCEL_OPTION);
 
-        if (!confirm.show(this).equals(0)) {
+        if (!confirm.show(this).equals(JOptionPane.YES_OPTION)) {
             return;
         }
 

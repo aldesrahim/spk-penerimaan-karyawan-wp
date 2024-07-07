@@ -1,21 +1,25 @@
+
 package main.models;
 
 import java.util.Objects;
 
-public class Criteria {
+/**
+ *
+ */
+public class SubCriteria {
     private Integer id;
     private Integer weightId;
+    private Integer criteriaId;
     private String name;
-    private Integer attribute;
 
-    public Criteria() {
+    public SubCriteria() {
     }
 
-    public Criteria(Integer id, Integer weightId, String name, Integer attribute) {
+    public SubCriteria(Integer id, Integer weightId, Integer criteriaId, String name) {
         this.id = id;
         this.weightId = weightId;
+        this.criteriaId = criteriaId;
         this.name = name;
-        this.attribute = attribute;
     }
 
     public Integer getId() {
@@ -34,6 +38,14 @@ public class Criteria {
         this.weightId = weightId;
     }
 
+    public Integer getCriteriaId() {
+        return criteriaId;
+    }
+
+    public void setCriteriaId(Integer criteriaId) {
+        this.criteriaId = criteriaId;
+    }
+
     public String getName() {
         return name;
     }
@@ -42,21 +54,13 @@ public class Criteria {
         this.name = name;
     }
 
-    public Integer getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(Integer attribute) {
-        this.attribute = attribute;
-    }
-
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 43 * hash + Objects.hashCode(this.id);
-        hash = 43 * hash + Objects.hashCode(this.weightId);
-        hash = 43 * hash + Objects.hashCode(this.name);
-        hash = 43 * hash + Objects.hashCode(this.attribute);
+        int hash = 7;
+        hash = 37 * hash + Objects.hashCode(this.id);
+        hash = 37 * hash + Objects.hashCode(this.weightId);
+        hash = 37 * hash + Objects.hashCode(this.criteriaId);
+        hash = 37 * hash + Objects.hashCode(this.name);
         return hash;
     }
 
@@ -71,7 +75,7 @@ public class Criteria {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Criteria other = (Criteria) obj;
+        final SubCriteria other = (SubCriteria) obj;
         return Objects.equals(this.id, other.id);
     }
 
