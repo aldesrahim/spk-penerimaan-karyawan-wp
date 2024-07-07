@@ -292,7 +292,7 @@ public class MasterBobotPanel extends javax.swing.JPanel {
         String weight = gWeight.getInputValue();
         String description = gDescription.getInputValue();
 
-        if (!id.isEmpty() && Application.isCalculationExists()) {
+        if (Application.isCalculationExists()) {
             Dialog errorDialog = new Dialog();
             errorDialog.setMessage("Bobot tidak bisa diubah, karena sudah ada perhitungan yang disimpan");
             errorDialog.show(this);
