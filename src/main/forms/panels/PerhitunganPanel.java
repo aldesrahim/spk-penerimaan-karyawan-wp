@@ -128,7 +128,7 @@ public class PerhitunganPanel extends javax.swing.JPanel {
                 " JOIN evaluations ON evaluations.id = calculations.evaluation_id" +
                 " JOIN applicants ON applicants.id = evaluations.applicant_id" +
                 " JOIN vacancies ON vacancies.id = applicants.vacancy_id" +
-                " ORDER BY calculations.v";
+                " ORDER BY calculations.v DESC";
 
         try {
             Statement stmt = Application.getDBConnection().createStatement();

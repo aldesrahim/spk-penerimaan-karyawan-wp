@@ -91,7 +91,7 @@ public class LaporanPanel extends javax.swing.JPanel {
                 " JOIN applicants ON applicants.id = evaluations.applicant_id" +
                 " JOIN vacancies ON vacancies.id = applicants.vacancy_id" +
                 " WHERE applicants.vacancy_id = ?" +
-                " ORDER BY calculations.v";
+                " ORDER BY calculations.v DESC";
 
         try {
             Vacancy vacancy = this.currentVacancy;
