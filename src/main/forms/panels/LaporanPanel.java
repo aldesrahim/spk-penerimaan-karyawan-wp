@@ -12,6 +12,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
+import main.util.Report;
 
 /**
  *
@@ -78,20 +81,20 @@ public class LaporanPanel extends javax.swing.JPanel {
             return;
         }
 
-        String sql = "SELECT" +
-                " applicants.name," +
-                " applicants.phone_number," +
-                " applicants.religion," +
-                " applicants.gender," +
-                " applicants.address," +
-                " applicants.dob," +
-                " vacancies.position" +
-                " FROM calculations" +
-                " JOIN evaluations ON evaluations.id = calculations.evaluation_id" +
-                " JOIN applicants ON applicants.id = evaluations.applicant_id" +
-                " JOIN vacancies ON vacancies.id = applicants.vacancy_id" +
-                " WHERE applicants.vacancy_id = ?" +
-                " ORDER BY calculations.v DESC";
+        String sql = "SELECT"
+                + " applicants.name,"
+                + " applicants.phone_number,"
+                + " applicants.religion,"
+                + " applicants.gender,"
+                + " applicants.address,"
+                + " applicants.dob,"
+                + " vacancies.position"
+                + " FROM calculations"
+                + " JOIN evaluations ON evaluations.id = calculations.evaluation_id"
+                + " JOIN applicants ON applicants.id = evaluations.applicant_id"
+                + " JOIN vacancies ON vacancies.id = applicants.vacancy_id"
+                + " WHERE applicants.vacancy_id = ?"
+                + " ORDER BY calculations.v DESC";
 
         try {
             Vacancy vacancy = this.currentVacancy;
@@ -105,22 +108,21 @@ public class LaporanPanel extends javax.swing.JPanel {
 
             while (rs.next()) {
                 tableModel.addRow(new String[]{
-                        rs.getString("position"),
-                        rs.getString("name"),
-                        rs.getString("phone_number"),
-                        Religion.fromString(rs.getString("religion")).toString(),
-                        Gender.fromInt(rs.getInt("gender")).toString(),
-                        rs.getString("address"),
-                        rs.getDate("dob").toString(),
-                        String.valueOf(++iteration),
-                });
+                    rs.getString("position"),
+                    rs.getString("name"),
+                    rs.getString("phone_number"),
+                    Religion.fromString(rs.getString("religion")).toString(),
+                    Gender.fromInt(rs.getInt("gender")).toString(),
+                    rs.getString("address"),
+                    rs.getDate("dob").toString(),
+                    String.valueOf(++iteration),});
             }
 
             if (iteration == 0) {
                 btnPrint.setVisible(false);
 
                 Dialog errorDialog = new Dialog();
-                errorDialog.setMessage("Lowongan "+ vacancy.getPosition() +" belum dihitung");
+                errorDialog.setMessage("Lowongan " + vacancy.getPosition() + " belum dihitung");
                 errorDialog.show(this);
             } else {
                 btnPrint.setVisible(true);
@@ -130,6 +132,21 @@ public class LaporanPanel extends javax.swing.JPanel {
             stmt.close();
         } catch (Exception e) {
             System.err.println("error while filling table calculation: " + e.getMessage());
+        }
+    }
+
+    public void showReport() {
+        if (this.currentVacancy == null) {
+            return;
+        }
+
+        try {
+            Map<String, Object> additionalParams = new HashMap<>();
+            additionalParams.put("VACANCY_ID", this.currentVacancy.getId());
+
+            Report.showReport("Report", additionalParams);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -239,9 +256,7 @@ public class LaporanPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnSearchActionPerformed
 
     private void btnPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintActionPerformed
-        if (this.currentVacancy == null) {
-            return;
-        }
+        showReport();
     }//GEN-LAST:event_btnPrintActionPerformed
 
 

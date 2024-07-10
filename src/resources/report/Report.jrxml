@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Report" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c3b6d2c5-596e-4459-9b3e-0f3001f089d2">
+	<property name="ireport.zoom" value="1.331000000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="REPORT_SUBTITLE" class="java.lang.String"/>
+	<parameter name="TTD_TITLE" class="java.lang.String"/>
+	<parameter name="TTD_NAME" class="java.lang.String"/>
+	<parameter name="VACANCY_ID" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT 
+applicants.name,
+applicants.phone_number,
+applicants.religion,
+applicants.gender,
+applicants.address,
+applicants.dob,
+vacancies.position
+FROM calculations
+JOIN evaluations ON evaluations.id = calculations.evaluation_id
+JOIN applicants ON applicants.id = evaluations.applicant_id
+JOIN vacancies ON vacancies.id = applicants.vacancy_id
+WHERE applicants.vacancy_id = $P{VACANCY_ID}
+ORDER BY calculations.v DESC]]>
+	</queryString>
+	<field name="name" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="phone_number" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="religion" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="gender" class="java.lang.Integer">
+		<fieldDescription><![CDATA[1 male, 2 female, 3 others]]></fieldDescription>
+	</field>
+	<field name="address" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="dob" class="java.sql.Date">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<field name="position" class="java.lang.String">
+		<fieldDescription><![CDATA[]]></fieldDescription>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="44" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="23" uuid="325e913e-fcd9-4cbd-b1d3-063a7215e751"/>
+				<textElement>
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Laporan]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="23" width="802" height="20" uuid="c4293a64-9ca9-4cb3-b4de-1399a9862317"/>
+				<textElement>
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{REPORT_SUBTITLE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="23">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="3" width="802" height="15" backcolor="#70A9A9" uuid="a6fac4af-c96a-451b-b6ab-a4c19b2bd3be"/>
+				<box>
+					<bottomPen lineWidth="1.0" lineColor="#CCCCCC"/>
+				</box>
+				<text><![CDATA[ ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="75" y="3" width="109" height="15" uuid="b6f0ba77-b506-41e7-a7f6-71d23f4febba"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Nama]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="3" width="75" height="15" uuid="6b47a847-e6f9-4235-a48f-79eb513d7413"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Lowongan]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="732" y="3" width="70" height="15" uuid="c71f1f71-4cf5-4134-976b-5db78dbe4dd7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ranking]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="281" y="3" width="97" height="15" uuid="85476dae-6cbb-43e9-b31d-5ffd88c7b3d3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Agama]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="378" y="3" width="97" height="15" uuid="cdd6a16c-8d4d-4f71-87bd-11bbddf39f3f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Jenis Kelamin]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="475" y="3" width="160" height="15" uuid="d674b948-7ca6-4db8-afe4-c8a4df87bd68"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Alamat]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="635" y="3" width="97" height="15" uuid="8557b458-2117-404f-abcb-1bcd82c2264c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Tanggal Lahir]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="184" y="3" width="97" height="15" uuid="9a9585d2-f613-4ff2-84e0-0d29496629f4"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[No. HP]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="16">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="802" height="14" backcolor="#E5ECF9" uuid="4fa4cd86-21b5-4a3d-945a-bbe886b91f60"/>
+				<box>
+					<bottomPen lineWidth="0.25" lineColor="#CCCCCC"/>
+				</box>
+				<text><![CDATA[ ]]></text>
+			</staticText>
+			<textField pattern="dd-MMM-yy">
+				<reportElement x="635" y="1" width="97" height="15" uuid="44647917-2295-4330-aca7-e5646b7f6556"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dob}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="75" height="15" uuid="2089b987-bf22-4fc7-a895-0fa2df00963c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{position}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="732" y="0" width="70" height="15" uuid="64a19c83-ebed-42e7-b397-0eb4ab3583db"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="475" y="1" width="160" height="15" uuid="95dfb791-8208-44a4-949f-1fc20cd791df"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{address}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="281" y="1" width="97" height="15" uuid="a832f49f-aa2f-459e-b9a5-ca309525dc97"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[main.enums.Religion.fromString($F{religion})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="378" y="1" width="97" height="15" uuid="53443a6e-2910-4983-91e8-efdbf6aa7843"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[main.enums.Gender.fromInt($F{gender})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="184" y="0" width="97" height="15" uuid="1db1cbe7-d8ad-4480-b5ca-97ce45612c42"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{phone_number}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="75" y="1" width="109" height="15" uuid="ead036f0-1fd0-49f9-bdcf-1c16c9b3f23b"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="5" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="3" width="802" height="1" uuid="5daf4759-9d18-415f-ae1e-a483cb291c5e"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="3" width="802" height="15" backcolor="#70A9A9" uuid="cffb0e1e-bea7-4f59-af72-f39a5f74d5bd"/>
+				<textField evaluationTime="Report">
+					<reportElement x="757" y="0" width="40" height="15" uuid="376802a6-db6a-4714-99ca-8044f182e615"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="677" y="0" width="80" height="15" uuid="01caab6b-4bef-4a55-8dd7-8dbd8e1372b5"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Hal "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="150">
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement x="658" y="8" width="144" height="20" uuid="63ce6a54-98ba-411c-bce3-39b58ce509e3"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="15" y="110" width="147" height="16" uuid="0c9b2f6f-aeb0-4b72-8e96-384be80f666c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TTD_NAME}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="15" y="28" width="147" height="16" uuid="5bb464bc-b9dc-45c3-aa7c-25e7c3c61057"/>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[Mengetahui:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="15" y="44" width="147" height="16" uuid="fb57741f-2f0d-42ee-8cec-2029891d9f68"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="10" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{TTD_TITLE}]]></textFieldExpression>
+			</textField>
+		</band>
+	</lastPageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
