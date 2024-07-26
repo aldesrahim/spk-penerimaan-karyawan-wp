@@ -1,6 +1,8 @@
 package main.util;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -37,6 +39,10 @@ public class Report {
             params.put("REPORT_SUBTITLE", "SPK Penerimaan Karyawan");
             params.put("TTD_TITLE", "HRD");
             params.put("TTD_NAME", "Fariyandi");
+            
+            LocalDateTime currentDateTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            params.put("PRINT_DATE", "Dicetak pada " + currentDateTime.format(formatter));
             
             if (additionalParams != null) {
                 additionalParams.forEach((key, value) -> {
